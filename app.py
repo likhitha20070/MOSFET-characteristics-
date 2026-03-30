@@ -4,81 +4,7 @@ import matplotlib.pyplot as plt
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
-# ------------------ PAGE CONFIG ------------------
-st.set_page_config(page_title="MOSFET Virtual Lab", layout="wide")
-
-# ------------------ CSS ------------------
-st.markdown("""
-<style>
-body {
-    background-color: #0e1117;
-    color: white;
-}
-h1, h2, h3 {
-    color: #00d4ff;
-}
-.stButton>button {
-    background-color: #00d4ff;
-    color: black;
-    border-radius: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ------------------ SIDEBAR ------------------
-st.sidebar.title("🔬 MOSFET Lab")
-page = st.sidebar.radio(
-    "Navigate",
-    ["Dashboard", "Aim & Theory", "Experiment", "Quiz", "Feedback"]
-)
-
-# ------------------ DASHBOARD ------------------
-if page == "Dashboard":
-    st.title("🔬 MOSFET Virtual Laboratory")
-
-    st.markdown("""
-    Welcome to the **Interactive MOSFET Simulation Lab** 🎯  
-
-    ### ✨ Features:
-    ✔ Interactive MOSFET Output Characteristics  
-    ✔ Real-time Graph Visualization  
-    ✔ Quiz to test understanding  
-    ✔ Feedback system  
-    ✔ Downloadable Experiment Report  
-
-    👉 Use the sidebar to explore!
-    """)
-
-# ------------------ AIM & THEORY ------------------
-elif page == "Aim & Theory":
-    st.title("📘 Aim & Theory")
-
-    st.header("🎯 Aim")
-    st.write("""
-    To study the characteristics of an N-channel MOSFET and analyze the relationship 
-    between Drain Current (Id), Gate Voltage (Vgs), and Drain Voltage (Vds).
-    """)
-
-    st.header("📖 Theory")
-    st.markdown("""
-    ### 🔹 What is MOSFET?
-    A MOSFET is a voltage-controlled semiconductor device.
-
-    ### 🔹 Regions of Operation:
-    1. Cutoff Region  
-    2. Triode Region  
-    3. Saturation Region  
-
-    ### 🔹 Equation:
-    Id = k (Vgs - Vt)^2
-
-    ### 🔹 Applications:
-    - Amplifiers  
-    - Switching circuits  
-    - Power electronics  
-    """)
-
-# ------------------ PDF FUNCTION ------------------
+# ------------------ FUNCTION (TOP ONLY) ------------------
 def generate_pdf(Vgs, Vt, k):
     file_name = "mosfet_report.pdf"
     doc = SimpleDocTemplate(file_name)
@@ -92,6 +18,32 @@ def generate_pdf(Vgs, Vt, k):
 
     doc.build(content)
     return file_name
+
+
+# ------------------ PAGE CONFIG ------------------
+st.set_page_config(page_title="MOSFET Virtual Lab", layout="wide")
+
+# ------------------ SIDEBAR ------------------
+st.sidebar.title("🔬 MOSFET Lab")
+page = st.sidebar.radio(
+    "Navigate",
+    ["Dashboard", "Aim & Theory", "Experiment", "Quiz", "Feedback"]
+)
+
+# ------------------ DASHBOARD ------------------
+if page == "Dashboard":
+    st.title("🔬 MOSFET Virtual Laboratory")
+    st.write("Welcome! Use the sidebar to explore the lab.")
+
+# ------------------ AIM & THEORY ------------------
+elif page == "Aim & Theory":
+    st.title("📘 Aim & Theory")
+
+    st.header("🎯 Aim")
+    st.write("To study MOSFET characteristics.")
+
+    st.header("📖 Theory")
+    st.write("MOSFET is a voltage-controlled device.")
 
 # ------------------ EXPERIMENT ------------------
 elif page == "Experiment":
@@ -122,60 +74,51 @@ elif page == "Experiment":
     ax.plot(Vds, Id)
     ax.set_xlabel("Vds")
     ax.set_ylabel("Id")
-    ax.set_title("MOSFET Output Characteristics")
 
     st.pyplot(fig)
 
     st.subheader("📌 Results")
     st.write(f"Vgs = {Vgs}, Vt = {Vt}, k = {k}")
 
+    # ✅ PDF DOWNLOAD ONLY HERE
     if st.button("📄 Generate Report"):
         pdf_file = generate_pdf(Vgs, Vt, k)
 
         with open(pdf_file, "rb") as f:
             st.download_button(
-                label="⬇ Download PDF",
+                "⬇ Download PDF",
                 data=f,
                 file_name="mosfet_report.pdf"
             )
 
 # ------------------ QUIZ ------------------
 elif page == "Quiz":
-    st.title("🧠 MOSFET Quiz")
+    st.title("🧠 Quiz")
 
     questions = [
-        {"q": "MOSFET is a ___ controlled device?", "opt": ["Current", "Voltage", "Power", "Resistance"], "ans": "Voltage"},
-        {"q": "MOSFET stands for?", "opt": ["Metal Oxide Semiconductor Field Effect Transistor", "Micro System"], "ans": "Metal Oxide Semiconductor Field Effect Transistor"},
-        {"q": "Which terminal controls current?", "opt": ["Gate", "Drain", "Source"], "ans": "Gate"},
-        {"q": "Cutoff region current?", "opt": ["Zero", "High"], "ans": "Zero"},
-        {"q": "Vt means?", "opt": ["Threshold voltage", "Test voltage"], "ans": "Threshold voltage"},
-        {"q": "MOSFET used as switch?", "opt": ["Yes", "No"], "ans": "Yes"},
-        {"q": "Drain current symbol?", "opt": ["Id", "Ig"], "ans": "Id"},
-        {"q": "MOSFET type?", "opt": ["N-channel", "P-channel", "Both"], "ans": "Both"},
-        {"q": "Device control type?", "opt": ["Voltage", "Current"], "ans": "Voltage"},
-        {"q": "Region for amplification?", "opt": ["Saturation", "Cutoff"], "ans": "Saturation"}
+        {"q": "MOSFET is a ___ controlled device?", "opt": ["Current", "Voltage"], "ans": "Voltage"},
+        {"q": "Vt means?", "opt": ["Threshold voltage", "Test voltage"], "ans": "Threshold voltage"}
     ]
 
     score = 0
 
     for i, q in enumerate(questions):
-        st.subheader(f"Q{i+1}: {q['q']}")
-        ans = st.radio("Select answer", q["opt"], key=i)
+        ans = st.radio(q["q"], q["opt"], key=i)
         if ans == q["ans"]:
             score += 1
 
-    if st.button("Submit Quiz"):
-        st.success(f"Your Score: {score}/10")
+    if st.button("Submit"):
+        st.success(f"Score: {score}/{len(questions)}")
 
 # ------------------ FEEDBACK ------------------
 elif page == "Feedback":
     st.title("💬 Feedback")
 
-    q1 = st.slider("How was the UI?", 1, 5)
-    q2 = st.slider("Concept clarity?", 1, 5)
-    q3 = st.slider("Simulation usefulness?", 1, 5)
-    q4 = st.slider("Ease of use?", 1, 5)
-    q5 = st.slider("Overall rating?", 1, 5)
+    st.slider("UI", 1, 5)
+    st.slider("Clarity", 1, 5)
+    st.slider("Usefulness", 1, 5)
+    st.slider("Ease", 1, 5)
+    st.slider("Overall", 1, 5)
 
-    if st.button("Submit Feedback"):
-        st.success("✅ Thank you for your feedback!")
+    if st.button("Submit"):
+        st.success("Thanks for feedback!")
