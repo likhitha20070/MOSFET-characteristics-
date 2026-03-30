@@ -4,56 +4,107 @@ import matplotlib.pyplot as plt
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
-# ------------------ FUNCTION (TOP ONLY) ------------------
+# ------------------ PDF (RESULT ONLY) ------------------
 def generate_pdf(Vgs, Vt, k):
-    file_name = "mosfet_report.pdf"
+    file_name = "mosfet_result.pdf"
     doc = SimpleDocTemplate(file_name)
     styles = getSampleStyleSheet()
 
     content = []
-    content.append(Paragraph("MOSFET Experiment Report", styles['Title']))
-    content.append(Paragraph(f"Gate Voltage (Vgs): {Vgs}", styles['Normal']))
-    content.append(Paragraph(f"Threshold Voltage (Vt): {Vt}", styles['Normal']))
-    content.append(Paragraph(f"Constant (k): {k}", styles['Normal']))
+    content.append(Paragraph("MOSFET EXPERIMENT RESULT", styles['Title']))
+    content.append(Paragraph(f"Vgs: {Vgs}", styles['Normal']))
+    content.append(Paragraph(f"Vt: {Vt}", styles['Normal']))
+    content.append(Paragraph(f"k: {k}", styles['Normal']))
+    content.append(Paragraph("Result: Characteristics verified successfully.", styles['Normal']))
 
     doc.build(content)
     return file_name
 
-
 # ------------------ PAGE CONFIG ------------------
 st.set_page_config(page_title="MOSFET Virtual Lab", layout="wide")
 
-# ------------------ SIDEBAR ------------------
-st.sidebar.title("🔬 MOSFET Lab")
-page = st.sidebar.radio(
-    "Navigate",
-    ["Dashboard", "Aim & Theory", "Experiment", "Quiz", "Feedback"]
-)
+# ------------------ UI ------------------
+st.sidebar.title("🔬 Virtual MOSFET Lab")
+section = st.sidebar.radio("Lab Sections", [
+    "Home", "Aim", "Apparatus", "Theory",
+    "Circuit Diagram", "Procedure",
+    "Experiment", "Observations",
+    "Result", "Quiz", "Feedback"
+])
 
-# ------------------ DASHBOARD ------------------
-if page == "Dashboard":
+# ------------------ HOME ------------------
+if section == "Home":
     st.title("🔬 MOSFET Virtual Laboratory")
-    st.write("Welcome! Use the sidebar to explore the lab.")
+    st.markdown("""
+    Welcome to a **Virtual Lab Experience** 🎯  
 
-# ------------------ AIM & THEORY ------------------
-elif page == "Aim & Theory":
-    st.title("📘 Aim & Theory")
+    This platform simulates a **real lab record digitally**, including:
+    - Theory & Procedure  
+    - Experiment Simulation  
+    - Observations  
+    - Result Generation  
+    - Viva Questions  
 
+    👉 Follow sections in order like a real lab.
+    """)
+
+# ------------------ AIM ------------------
+elif section == "Aim":
     st.header("🎯 Aim")
-    st.write("To study MOSFET characteristics.")
+    st.write("To study the output characteristics of an N-channel MOSFET.")
 
+# ------------------ APPARATUS ------------------
+elif section == "Apparatus":
+    st.header("🧰 Apparatus Required")
+    st.write("""
+    - MOSFET  
+    - DC Power Supply  
+    - Ammeter  
+    - Voltmeter  
+    - Breadboard  
+    - Connecting Wires  
+    """)
+
+# ------------------ THEORY ------------------
+elif section == "Theory":
     st.header("📖 Theory")
-    st.write("MOSFET is a voltage-controlled device.")
+    st.write("""
+    MOSFET is a voltage-controlled device widely used in electronics.
+
+    ### Regions:
+    - Cutoff  
+    - Triode  
+    - Saturation  
+
+    ### Equation:
+    Id = k(Vgs - Vt)^2
+    """)
+
+# ------------------ CIRCUIT ------------------
+elif section == "Circuit Diagram":
+    st.header("🔌 Circuit Diagram")
+    st.info("👉 Add MOSFET circuit image here for better visualization.")
+    st.image("https://upload.wikimedia.org/wikipedia/commons/7/7e/MOSFET_N-Channel.svg")
+
+# ------------------ PROCEDURE ------------------
+elif section == "Procedure":
+    st.header("⚙ Procedure")
+    st.write("""
+    1. Connect the MOSFET circuit  
+    2. Apply gate voltage (Vgs)  
+    3. Vary drain voltage (Vds)  
+    4. Measure drain current (Id)  
+    5. Record readings  
+    6. Plot graph  
+    """)
 
 # ------------------ EXPERIMENT ------------------
-elif page == "Experiment":
-    st.title("🧪 MOSFET Experiment")
+elif section == "Experiment":
+    st.header("🧪 Perform Experiment")
 
-    st.sidebar.header("⚙ Input Parameters")
-
-    Vgs = st.sidebar.slider("Gate Voltage (Vgs)", 0.0, 5.0, 2.5)
-    Vt = st.sidebar.slider("Threshold Voltage (Vt)", 0.5, 2.0, 1.0)
-    k = st.sidebar.slider("Constant (k)", 0.1, 2.0, 1.0)
+    Vgs = st.slider("Gate Voltage (Vgs)", 0.0, 5.0, 2.5)
+    Vt = st.slider("Threshold Voltage (Vt)", 0.5, 2.0, 1.0)
+    k = st.slider("Constant (k)", 0.1, 2.0, 1.0)
 
     Vds = np.linspace(0, 5, 100)
 
@@ -62,42 +113,65 @@ elif page == "Experiment":
         if Vgs <= Vt:
             Id.append(0)
         elif v < (Vgs - Vt):
-            Id.append(k * ((Vgs - Vt) * v - (v**2) / 2))
+            Id.append(k * ((Vgs - Vt)*v - (v**2)/2))
         else:
-            Id.append(k * (Vgs - Vt) ** 2)
+            Id.append(k * (Vgs - Vt)**2)
 
     Id = np.array(Id)
-
-    st.subheader("📊 Output Characteristics")
 
     fig, ax = plt.subplots()
     ax.plot(Vds, Id)
     ax.set_xlabel("Vds")
     ax.set_ylabel("Id")
+    ax.set_title("Output Characteristics")
 
     st.pyplot(fig)
 
-    st.subheader("📌 Results")
-    st.write(f"Vgs = {Vgs}, Vt = {Vt}, k = {k}")
+    st.session_state["data"] = (Vgs, Vt, k)
 
-    # ✅ PDF DOWNLOAD ONLY HERE
-    if st.button("📄 Generate Report"):
-        pdf_file = generate_pdf(Vgs, Vt, k)
+# ------------------ OBSERVATIONS ------------------
+elif section == "Observations":
+    st.header("📋 Observations")
 
-        with open(pdf_file, "rb") as f:
-            st.download_button(
-                "⬇ Download PDF",
-                data=f,
-                file_name="mosfet_report.pdf"
-            )
+    if "data" in st.session_state:
+        Vgs, Vt, k = st.session_state["data"]
+        st.write(f"Vgs: {Vgs}")
+        st.write(f"Vt: {Vt}")
+        st.write(f"k: {k}")
+    else:
+        st.warning("⚠ Perform experiment first")
+
+# ------------------ RESULT ------------------
+elif section == "Result":
+    st.header("📌 Result")
+
+    if "data" in st.session_state:
+        Vgs, Vt, k = st.session_state["data"]
+
+        st.success("MOSFET characteristics verified successfully.")
+
+        if st.button("📄 Download Result PDF"):
+            pdf = generate_pdf(Vgs, Vt, k)
+            with open(pdf, "rb") as f:
+                st.download_button("⬇ Download", f, file_name="result.pdf")
+    else:
+        st.warning("⚠ Perform experiment first")
 
 # ------------------ QUIZ ------------------
-elif page == "Quiz":
-    st.title("🧠 Quiz")
+elif section == "Quiz":
+    st.header("🧠 Viva Questions")
 
     questions = [
-        {"q": "MOSFET is a ___ controlled device?", "opt": ["Current", "Voltage"], "ans": "Voltage"},
-        {"q": "Vt means?", "opt": ["Threshold voltage", "Test voltage"], "ans": "Threshold voltage"}
+        {"q": "MOSFET is controlled by?", "opt": ["Voltage", "Current"], "ans": "Voltage"},
+        {"q": "Region for amplification?", "opt": ["Saturation", "Cutoff"], "ans": "Saturation"},
+        {"q": "Vt stands for?", "opt": ["Threshold voltage", "Test voltage"], "ans": "Threshold voltage"},
+        {"q": "Drain current symbol?", "opt": ["Id", "Ig"], "ans": "Id"},
+        {"q": "MOSFET type?", "opt": ["N-channel", "P-channel", "Both"], "ans": "Both"},
+        {"q": "Used as switch?", "opt": ["Yes", "No"], "ans": "Yes"},
+        {"q": "Gate controls?", "opt": ["Current", "Voltage"], "ans": "Voltage"},
+        {"q": "Cutoff current?", "opt": ["Zero", "High"], "ans": "Zero"},
+        {"q": "Device type?", "opt": ["Voltage", "Current"], "ans": "Voltage"},
+        {"q": "Equation uses?", "opt": ["Vgs", "Vds"], "ans": "Vgs"}
     ]
 
     score = 0
@@ -107,18 +181,18 @@ elif page == "Quiz":
         if ans == q["ans"]:
             score += 1
 
-    if st.button("Submit"):
-        st.success(f"Score: {score}/{len(questions)}")
+    if st.button("Submit Viva"):
+        st.success(f"Score: {score}/10")
 
 # ------------------ FEEDBACK ------------------
-elif page == "Feedback":
-    st.title("💬 Feedback")
+elif section == "Feedback":
+    st.header("💬 Feedback")
 
-    st.slider("UI", 1, 5)
+    st.slider("Lab Experience", 1, 5)
     st.slider("Clarity", 1, 5)
-    st.slider("Usefulness", 1, 5)
-    st.slider("Ease", 1, 5)
+    st.slider("UI", 1, 5)
+    st.slider("Understanding", 1, 5)
     st.slider("Overall", 1, 5)
 
     if st.button("Submit"):
-        st.success("Thanks for feedback!")
+        st.success("Thanks for your feedback!")
