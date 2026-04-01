@@ -11,7 +11,6 @@ def generate_pdf(name, reg, dept, obs_data):
     styles = getSampleStyleSheet()
 
     content = []
-
     content.append(Paragraph("OP-AMP VIRTUAL LAB REPORT", styles['Title']))
     content.append(Spacer(1, 10))
 
@@ -30,6 +29,7 @@ def generate_pdf(name, reg, dept, obs_data):
 
     doc.build(content)
     return file_name
+
 
 # ------------------ PAGE CONFIG ------------------
 st.set_page_config(page_title="Op-Amp Virtual Lab", layout="wide")
@@ -58,52 +58,37 @@ if page == "Aim & Theory":
     st.write("""
     An Operational Amplifier (Op-Amp) is a high-gain differential amplifier widely used in analog electronics.
 
-    It amplifies the difference between two input voltages and produces an output voltage.
-
     ### Key Features:
     - High input impedance  
     - Low output impedance  
     - High gain  
 
-    ### Types of Configurations:
-
-    🔹 Inverting Amplifier:
-    Output is inverted and gain is given by:
-    Gain = -Rf / Rin
-
-    🔹 Non-Inverting Amplifier:
-    Output is in phase with input:
-    Gain = 1 + (Rf / Rin)
-
-    🔹 Comparator:
-    Compares input voltage with reference voltage and gives digital output.
+    ### Configurations:
+    🔹 Inverting Amplifier → Gain = -Rf / Rin  
+    🔹 Non-Inverting Amplifier → Gain = 1 + (Rf / Rin)  
+    🔹 Comparator → Compares voltages  
 
     ### Applications:
-    - Signal amplification  
-    - Filtering  
-    - Oscillators  
-    - Voltage comparison  
+    Amplification, filtering, oscillators, comparators.
     """)
 
 # ------------------ PAGE 2 ------------------
 elif page == "Apparatus Required":
     st.title("🧰 Apparatus Required")
-
     st.write("""
-    - Operational Amplifier IC (741)  
+    - Op-Amp IC (741)  
     - Resistors  
     - Breadboard  
     - Power Supply  
     - Function Generator  
-    - CRO (Oscilloscope)  
-    - Connecting Wires  
+    - CRO  
+    - Connecting wires  
     """)
 
 # ------------------ PAGE 3 ------------------
 elif page == "Experiment":
     st.title("🧪 Experiment")
 
-    # Student details
     st.subheader("👨‍🎓 Student Details")
     col1, col2, col3 = st.columns(3)
 
@@ -116,44 +101,38 @@ elif page == "Experiment":
 
     st.subheader("📋 Observation Table")
 
-    rows = 5
     obs_data = []
-
-    for i in range(rows):
+    for i in range(5):
         col1, col2 = st.columns(2)
         with col1:
-            vin = st.number_input(f"Vin (Row {i+1})", key=f"vin{i}")
+            vin = st.number_input(f"Vin {i+1}", key=f"vin{i}")
         with col2:
-            vout = st.number_input(f"Vout (Row {i+1})", key=f"vout{i}")
-
+            vout = st.number_input(f"Vout {i+1}", key=f"vout{i}")
         obs_data.append((vin, vout))
 
-    # Run experiment
     if st.button("▶ Run Experiment"):
         st.success("✅ Experiment has been run successfully!")
 
-        # Graph
         vin_vals = [x[0] for x in obs_data]
         vout_vals = [x[1] for x in obs_data]
 
         fig, ax = plt.subplots()
         ax.plot(vin_vals, vout_vals, marker='o')
-        ax.set_xlabel("Input Voltage (Vin)")
-        ax.set_ylabel("Output Voltage (Vout)")
-        ax.set_title("Input vs Output Graph")
+        ax.set_xlabel("Vin")
+        ax.set_ylabel("Vout")
+        ax.set_title("Graph")
 
         st.pyplot(fig)
 
         st.subheader("📌 Result")
         st.write("The Op-Amp characteristics are verified successfully.")
 
-        # PDF download
         pdf = generate_pdf(name, reg, dept, obs_data)
 
         with open(pdf, "rb") as f:
-            st.download_button("⬇ Download Full Report", f, file_name="report.pdf")
+            st.download_button("⬇ Download Report", f, file_name="report.pdf")
 
-# ------------------ PAGE 4 ------------------
+# ------------------ PAGE 4 (FIXED QUIZ) ------------------
 elif page == "Quiz":
     st.title("🧠 Quiz")
 
@@ -170,25 +149,40 @@ elif page == "Quiz":
         {"q": "Gain type?", "opt": ["Voltage", "Current"], "ans": "Voltage"}
     ]
 
-    score = 0
+    user_answers = []
 
     for i, q in enumerate(questions):
-        ans = st.radio(q["q"], q["opt"], key=i)
-        if ans == q["ans"]:
-            score += 1
+        st.subheader(f"Q{i+1}: {q['q']}")
+
+        options = ["Select an option"] + q["opt"]
+
+        ans = st.radio(
+            "Choose your answer:",
+            options,
+            index=0,
+            key=f"q{i}"
+        )
+
+        user_answers.append(ans)
 
     if st.button("Submit Quiz"):
+        score = 0
+
+        for i, q in enumerate(questions):
+            if user_answers[i] == q["ans"]:
+                score += 1
+
         st.success(f"Your Score: {score}/10")
 
 # ------------------ PAGE 5 ------------------
 elif page == "Feedback":
-    st.title("💬 Feedback Form")
+    st.title("💬 Feedback")
 
-    q1 = st.text_input("1. How was the virtual lab experience?")
-    q2 = st.text_input("2. Was the theory clear?")
-    q3 = st.text_input("3. How was the experiment interface?")
-    q4 = st.text_input("4. Suggestions for improvement?")
-    q5 = st.text_input("5. Overall feedback")
+    st.text_input("1. How was the lab experience?")
+    st.text_input("2. Was theory clear?")
+    st.text_input("3. Experiment interface feedback?")
+    st.text_input("4. Suggestions?")
+    st.text_input("5. Overall feedback?")
 
     if st.button("Submit Feedback"):
         st.success("✅ Thank you for your feedback!")
