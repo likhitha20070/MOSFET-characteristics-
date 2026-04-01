@@ -1,56 +1,17 @@
-# 🔬 Op-Amp Virtual Lab (Streamlit)
+# 🔬 Op-Amp Virtual Lab
 
-An interactive **Virtual Laboratory** built using Streamlit to simulate and study **Operational Amplifier (Op-Amp) circuits** in a lab-manual format.
+An interactive Streamlit-based Virtual Lab designed to simulate real laboratory experience for Operational Amplifier experiments.
 
----
+## 📌 Features
+- 📖 Detailed Aim & Theory
+- 🧰 Apparatus List
+- 🧪 Experiment with Observation Table
+- 📊 Graph Generation
+- 📄 PDF Report Download
+- 🧠 Quiz (10 Questions)
+- 💬 Feedback Form
 
-## 🎯 Objective
-To provide a **virtual lab experience** for understanding Op-Amp configurations such as:
-- Inverting Amplifier  
-- Non-Inverting Amplifier  
-- Comparator  
-
-This project replicates a **real lab record digitally** with theory, procedure, experiment, and result.
-
----
-
-## 🚀 Features
-
-### 📖 Lab Manual Structure
-- Aim  
-- Apparatus  
-- Theory  
-- Procedure  
-
-### 🧪 Interactive Experiment
-- Adjustable parameters (Rin, Rf, Vin, Vref)
-- Real-time calculations  
-- Output waveform visualization  
-
-### 📊 Result Generation
-- Displays calculated gain and output voltage  
-- Generates **PDF report (Result only)**  
-
-### 🧠 Viva / Quiz
-- 10 questions to test understanding  
-- Instant score evaluation  
-
-### 💬 Feedback System
-- User rating for UI, clarity, and experience  
-
----
-
-## 🛠 Tech Stack
-- **Python**
-- **Streamlit**
-- **NumPy**
-- **Matplotlib**
-- **ReportLab**
-
----
-
-## ▶️ How to Run
-
+## 🚀 Run the App
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
